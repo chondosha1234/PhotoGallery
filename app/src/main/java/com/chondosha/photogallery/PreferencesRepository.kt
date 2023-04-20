@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.map
 class PreferencesRepository private constructor(
     private val dataStore: DataStore<Preferences>
 ) {
+
     val storedQuery: Flow<String> = dataStore.data.map {
         it[SEARCH_QUERY_KEY] ?: ""
     }.distinctUntilChanged()
@@ -26,8 +27,19 @@ class PreferencesRepository private constructor(
         }
     }
 
+    val lastResultId: Flow<String> = dataStore.data.map {
+        it[PREF_LAST_RESULT_ID] ?: ""
+    }.distinctUntilChanged()
+
+    suspend fun setLastResultId(lastResultId: String) {
+        dataStore.edit {
+            it[PREF_LAST_RESULT_ID] = lastResultId
+        }
+    }
+
     companion object {
         private val SEARCH_QUERY_KEY = stringPreferencesKey("search_query")
+        private val PREF_LAST_RESULT_ID = stringPreferencesKey("LastResultId")
         private var INSTANCE: PreferencesRepository? = null
 
         fun initialize(context: Context) {
